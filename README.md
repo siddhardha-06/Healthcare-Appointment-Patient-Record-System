@@ -13,7 +13,7 @@ Manage patients, doctors, appointments, medical histories and prescriptions secu
 | P Manas Siddhardha (lead) | PES1UG24AM186 | [siddhardha-06](https://github.com/siddhardha-06) |
 | Prithviraj K | PES1UG24AM204 | [Prithviraj-techie](https://github.com/Prithviraj-techie) |
 | Parth Kale | PES1UG24AM184 | [Parthkale64](https://github.com/Parthkale64) |
-| Raghav Budur | PES1UG23AM225 | [RAGHAV-BUDUR](https://github.com/RAGHAV-BUDUR) |
+| Raghav Budur (colead) | PES1UG23AM225 | [RAGHAV-BUDUR](https://github.com/RAGHAV-BUDUR) |
 
 ## Users
 
