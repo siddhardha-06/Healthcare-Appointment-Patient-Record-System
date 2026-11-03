@@ -24,8 +24,19 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt
 
-      - name: Run tests
-        run: pytest -v
+      - name: Run tests with line and branch coverage (fails under 70 %)
+        run: >
+          pytest -v --cov=app --cov=src --cov-branch
+          --cov-report=term --cov-report=xml:reports/coverage.xml --cov-report=json:reports/coverage.json
+          --cov-report=html:reports/htmlcov --junitxml=reports/junit.xml --cov-fail-under=70
+
+      - name: Upload test and coverage results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reports/
+          retention-days: 30
 
   docs-check:
     runs-on: ubuntu-latest
