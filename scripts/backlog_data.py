@@ -1,0 +1,50 @@
+"""The product backlog: one story per requirement (SRS) plus engineering tasks.
+Used by scripts/create_backlog.py and rendered in docs/backlog/backlog.md."""
+
+OWNERS = {"Manas": "siddhardha-06", "Prithviraj": "Prithviraj-techie", "Parth": "Parthkale64", "Raghav": "RAGHAV-BUDUR"}
+SPRINTS = {1: ("Sprint 1", "2026-10-30", "26–30 Oct. Core booking flow: accounts, patients, doctors and slots, conflict-free booking, chart access"),
+           2: ("Sprint 2", "2026-11-06", "2–6 Nov. Clinical records, prescriptions, notifications, reports, security hardening, performance kit"),
+           3: ("Sprint 3", "2026-11-13", "9–13 Nov. Testing week: test-case updates, reports, fixes from testing (spill-over sprint)")}
+
+# (id, title, requirement ids, story points, owner, sprint, acceptance summary)
+STORIES = [
+    ("S-01", "Register and log in with JWT and roles", "HAP-F-001, HAP-SR-001, HAP-SR-002", 3, "Manas", 1, "TC-AUTH-01 passes"),
+    ("S-02", "Server-side role checks on every endpoint", "HAP-F-002, HAP-SR-004", 3, "Manas", 1, "TC-AUTH-02 passes"),
+    ("S-03", "Admin creates and deactivates staff accounts", "HAP-F-003", 2, "Manas", 1, "Deactivated users cannot log in"),
+    ("S-04", "Account lockout after 5 failed logins", "HAP-SR-005", 2, "Manas", 1, "6th attempt returns 423"),
+    ("S-05", "App skeleton, plugin discovery, error format, CI with coverage gate", "HAP-NF-005", 3, "Manas", 1, "CI fails under 70 % coverage"),
+    ("S-06", "Web frontend shell: login, register, role menus", "HAP-NF-004", 3, "Manas", 1, "Works at 360 px"),
+    ("S-07", "Patient profile with MRN", "HAP-F-010, HAP-F-011", 3, "Raghav", 1, "TC-PAT-01 passes"),
+    ("S-08", "Duplicate patient warning", "HAP-F-012", 2, "Raghav", 1, "Same phone + DOB warns with MRN"),
+    ("S-09", "Patient search for staff", "HAP-F-013", 2, "Raghav", 1, "≤ 1 s, 50 per page"),
+    ("S-10", "Doctor profiles", "HAP-F-020", 2, "Raghav", 1, "Only 10/15/20/30-minute slots"),
+    ("S-11", "Weekly availability generates 30 days of slots", "HAP-F-021", 5, "Raghav", 1, "TC-DOC-01 slot count exact"),
+    ("S-12", "Doctor leave blocks slots", "HAP-F-022", 3, "Raghav", 1, "TC-DOC-01 leave part passes"),
+    ("S-13", "Search doctors and free slots", "HAP-F-030", 3, "Prithviraj", 1, "TC-APT-01 passes"),
+    ("S-14", "Book an appointment", "HAP-F-031", 3, "Prithviraj", 1, "Appears in doctor's schedule"),
+    ("S-15", "Conflict prevention (row lock + partial unique index)", "HAP-F-032", 8, "Prithviraj", 1, "TC-APT-02: 1 of 20 wins"),
+    ("S-16", "Reschedule and cancel up to 2 h before", "HAP-F-033", 3, "Prithviraj", 1, "TC-APT-03 window rules"),
+    ("S-17", "Status lifecycle and check-in", "HAP-F-034", 5, "Prithviraj", 1, "Invalid transitions return 409"),
+    ("S-18", "Receptionist books on behalf of a patient", "HAP-F-035", 2, "Prithviraj", 1, "Same conflict rules"),
+    ("S-19", "Doctor's day list and patient chart with care-relationship check", "HAP-F-040", 3, "Parth", 1, "TC-MR-03 passes"),
+    ("S-20", "AES-256-GCM encryption helper for medical fields", "HAP-SR-006", 3, "Parth", 1, "Ciphertext in DB"),
+    ("S-21", "Append-only audit log", "HAP-SR-007", 3, "Parth", 1, "UPDATE/DELETE refused"),
+    ("S-22", "Consultation notes complete the visit", "HAP-F-041", 5, "Parth", 2, "TC-MR-01 passes"),
+    ("S-23", "Prescriptions with PDF", "HAP-F-042", 5, "Parth", 2, "TC-MR-02 PDF part"),
+    ("S-24", "Patient views own records read-only", "HAP-F-043", 3, "Parth", 2, "TC-MR-02 read-only part"),
+    ("S-25", "Versioned, never-deleted records", "HAP-F-044", 3, "Parth", 2, "Edit creates version 2"),
+    ("S-26", "Notifications and 24-hour reminders", "HAP-F-050", 5, "Manas", 2, "TC-NOT-01 passes"),
+    ("S-27", "Admin dashboard", "HAP-F-051", 3, "Manas", 2, "Figures match the database"),
+    ("S-28", "CSV export of appointments", "HAP-F-052", 2, "Manas", 2, "≤ 366 days, audited"),
+    ("S-29", "Background job scheduler (reminders, no-shows, slots)", "HAP-F-034, HAP-F-050, HAP-F-021", 3, "Manas", 2, "Jobs runnable by Admin"),
+    ("S-30", "Automatic NO_SHOW job", "HAP-F-034", 2, "Prithviraj", 2, "NO_SHOW 30 min after slot end"),
+    ("S-31", "Front-desk screen: arrivals, check-in, book for patient", "HAP-F-034, HAP-F-035", 3, "Prithviraj", 2, "Usable on a tablet"),
+    ("S-32", "Load-test kit and performance run", "HAP-NF-001, HAP-NF-002", 5, "Prithviraj", 2, "TC-PERF-01 passes"),
+    ("S-33", "Security hardening: rate limit, headers, HTTPS redirect", "HAP-SR-003, HAP-SR-005", 3, "Raghav", 2, "429 after 10 attempts/min"),
+    ("S-34", "Reception patient screen and nightly slot job", "HAP-F-011, HAP-F-021", 3, "Raghav", 2, "Walk-in registration in UI"),
+    ("S-35", "Demo data for sprint videos", "HAP-NF-004", 2, "Raghav", 2, "One command seeds everything"),
+    ("S-36", "Update test cases after the sprints", "HAP-NF-005", 2, "Manas", 3, "All 14 TC documents updated"),
+    ("S-37", "Unit test and code coverage reports", "HAP-NF-005", 2, "Prithviraj", 3, "Reports in docs/reports"),
+    ("S-38", "Branch coverage report and security validation", "HAP-SR-004", 2, "Raghav", 3, "Reports in docs/reports"),
+    ("S-39", "System validation report", "HAP-NF-005", 2, "Parth", 3, "14 test cases reported"),
+]

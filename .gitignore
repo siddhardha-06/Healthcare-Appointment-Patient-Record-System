@@ -25,3 +25,10 @@ Thumbs.db
 
 # Build output (CD)
 build/
+
+# Local databases and test output
+*.db
+/reports/
+.coverage
+coverage.xml
+htmlcov/
