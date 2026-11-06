@@ -224,3 +224,10 @@ def test_doctor_leave_flags_booked_appointments(client, make_user):
     flagged = client.get("/api/v1/appointments?needsReschedule=true", headers=v["admin"]).json()["items"]
     assert [a["id"] for a in flagged] == [v["appointment"]["id"]]
     assert client.get(f"/api/v1/appointments/{v['appointment']['id']}", headers=v["patient_h"]).json()["status"] == "BOOKED"
+
+
+def test_no_show_job_is_registered_and_runs(client, make_user):
+    v = booked_visit(client, make_user)
+    clock.set_now(datetime.fromisoformat(v["appointment"]["end"]) + timedelta(minutes=31))
+    r = client.post("/api/v1/admin/jobs/no-shows/run", headers=v["admin"])
+    assert r.status_code == 200 and r.json()["processed"] == 1
