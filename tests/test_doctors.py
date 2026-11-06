@@ -109,3 +109,14 @@ def test_changing_availability_removes_free_but_keeps_booked_slots(client, make_
     assert any(s.id == first.id and s.status == "BOOKED" for s in remaining)
     assert all(s.start.weekday() == 1 or s.status == "BOOKED" for s in remaining)
     assert client.get("/api/v1/doctors/me/availability", headers=doc_h).json()[0]["weekday"] == 1
+
+
+def test_nightly_slot_generation_job(client, make_user, db):
+    from app.services.doctors.models import Slot
+    start_clock()
+    _, admin = make_user("ADMIN")
+    _, doctor = make_doctor(client, make_user, admin, availability=[{"weekday": 0, "startTime": "09:00", "endTime": "10:00"}])
+    before = db.query(Slot).count()
+    start_clock(MONDAY_8AM + timedelta(days=7))  # a week later the window has moved on
+    r = client.post("/api/v1/admin/jobs/slot-generation/run", headers=admin)
+    assert r.status_code == 200 and r.json()["processed"] == 4 and db.query(Slot).count() == before + 4
