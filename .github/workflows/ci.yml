@@ -30,6 +30,12 @@ jobs:
           --cov-report=term --cov-report=xml:reports/coverage.xml --cov-report=json:reports/coverage.json
           --cov-report=html:reports/htmlcov --junitxml=reports/junit.xml --cov-fail-under=70
 
+      - name: Generate the four test reports (unit, system validation, code coverage, branch coverage)
+        if: always()
+        run: |
+          cp docs/reports/perf-summary.md reports/ 2>/dev/null || true
+          python scripts/generate_reports.py reports reports/generated
+
       - name: Upload test and coverage results
         if: always()
         uses: actions/upload-artifact@v4
