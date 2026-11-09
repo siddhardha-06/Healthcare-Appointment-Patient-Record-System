@@ -2,6 +2,7 @@ import secrets
 from datetime import timedelta
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core import clock
@@ -60,5 +61,8 @@ def new_one_time_password() -> str:
 def ensure_admin(db: Session) -> None:
     """Create the first Admin account from ADMIN_EMAIL / ADMIN_PASSWORD if no Admin exists."""
     if db.scalar(select(User).where(User.role == Role.ADMIN.value)) is None:
-        create_user(db, settings.admin_email, settings.admin_password, Role.ADMIN, "Hospital Administrator")
-        db.commit()
+        try:
+            create_user(db, settings.admin_email, settings.admin_password, Role.ADMIN, "Hospital Administrator")
+            db.commit()
+        except IntegrityError:  # another server worker created it at the same moment
+            db.rollback()
