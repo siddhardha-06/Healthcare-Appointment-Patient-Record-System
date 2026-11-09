@@ -21,18 +21,21 @@ def build_chart(db: Session, patient) -> dict:
     dob = patient.date_of_birth
     age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
     allergies = [a.strip() for a in (patient.allergies or "").split(",") if a.strip()]
-    doctors = {d.id: d.name for d in db.scalars(select(Doctor))}
+    consultations = list(db.scalars(select(Consultation).where(Consultation.patient_id == patient.id)
+                                    .order_by(Consultation.created_at.desc())))
+    rx_list = list(db.scalars(select(Prescription).where(Prescription.patient_id == patient.id)
+                              .order_by(Prescription.issued_at.desc())))
+    ids = {c.doctor_id for c in consultations} | {p.doctor_id for p in rx_list}
+    doctors = {d.id: d.name for d in db.scalars(select(Doctor).where(Doctor.id.in_(ids)))} if ids else {}
     visits = []
-    for c in db.scalars(select(Consultation).where(Consultation.patient_id == patient.id).order_by(Consultation.created_at.desc())):
+    for c in consultations:
         latest = db.scalar(select(ConsultationVersion).where(ConsultationVersion.consultation_id == c.id,
                                                              ConsultationVersion.version == c.current_version))
         visits.append({"appointment_id": c.appointment_id, "consultation_id": c.id, "date": c.created_at,
                        "doctor": doctors.get(c.doctor_id, "?"), "diagnosis": crypto.decrypt(latest.diagnosis_enc),
                        "version": c.current_version})
     prescriptions = [{"prescription_id": p.id, "date": p.issued_at, "doctor": doctors.get(p.doctor_id, "?"),
-                      "items": len(p.items)}
-                     for p in db.scalars(select(Prescription).where(Prescription.patient_id == patient.id)
-                                         .order_by(Prescription.issued_at.desc()))]
+                      "items": len(p.items)} for p in rx_list]
     return {"patient": {"id": patient.id, "mrn": patient.mrn, "name": patient.full_name, "age": age,
                         "gender": patient.gender, "blood_group": patient.blood_group, "allergies": allergies},
             "visits": visits, "prescriptions": prescriptions}
