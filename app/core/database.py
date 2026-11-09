@@ -1,4 +1,6 @@
 """SQLAlchemy engine/session setup. One engine per process, configured by create_app()."""
+import os
+
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -20,8 +22,14 @@ def configure(url: str):
     kwargs = {}
     if url.startswith("sqlite"):
         kwargs["connect_args"] = {"check_same_thread": False, "timeout": 15}
-        if url in ("sqlite://", "sqlite:///:memory:"):
-            kwargs["poolclass"] = StaticPool
+    if url in ("sqlite://", "sqlite:///:memory:"):
+        kwargs["poolclass"] = StaticPool
+    else:
+        # FastAPI runs up to 40 sync requests in parallel; the default pool (5 + 10) made requests queue
+        # for 30 s under load (found by TC-PERF-01), so the pool matches the thread pool.
+        kwargs["pool_size"] = int(os.getenv("DB_POOL_SIZE", "20"))
+        kwargs["max_overflow"] = int(os.getenv("DB_MAX_OVERFLOW", "20"))
+        kwargs["pool_pre_ping"] = True
     _engine = create_engine(url, **kwargs)
     if url.startswith("sqlite"):
         @event.listens_for(_engine, "connect")
