@@ -104,3 +104,18 @@ def test_admin_bootstrap_on_startup(app):
     with TestClient(app) as c:
         r = c.post("/api/v1/auth/login", json={"email": "admin@hap.local", "password": "Admin@1234"})
         assert r.status_code == 200 and r.json()["role"] == "ADMIN"
+
+
+def test_first_admin_bootstrap_survives_a_parallel_worker(db, monkeypatch):
+    """D-3: with several server workers only one may create the first Admin; the others must not crash."""
+    from sqlalchemy.exc import IntegrityError
+
+    from app.services.auth import service
+
+    def other_worker_was_faster(*args, **kwargs):
+        raise IntegrityError("INSERT INTO users", {}, Exception("UNIQUE constraint failed: users.email"))
+
+    monkeypatch.setattr(service, "create_user", other_worker_was_faster)
+    service.ensure_admin(db)  # must not raise
+    assert db.is_active
+
