@@ -148,13 +148,13 @@ def main(src: str, dst: str) -> None:
     src_p, dst_p = Path(src), Path(dst)
     dst_p.mkdir(parents=True, exist_ok=True)
     cases = load_junit(src_p / "junit.xml")
-    cov = json.loads((src_p / "coverage.json").read_text(encoding="utf-8"))
+    cov = json.loads((src_p / "coverage.json").read_text())
     perf_file = src_p / "perf-summary.md"
-    perf_note = perf_file.read_text(encoding="utf-8").strip().splitlines()[0] if perf_file.exists() else "Run separately (see Test Plan §5)"
-    (dst_p / "unit-test-report.md").write_text(unit_report(cases), encoding="utf-8")
-    (dst_p / "system-validation-report.md").write_text(validation_report(cases, perf_note), encoding="utf-8")
-    (dst_p / "code-coverage-report.md").write_text(coverage_report(cov, "line"), encoding="utf-8")
-    (dst_p / "branch-coverage-report.md").write_text(coverage_report(cov, "branch"), encoding="utf-8")
+    perf_note = perf_file.read_text().strip().splitlines()[0] if perf_file.exists() else "Run separately (see Test Plan §5)"
+    (dst_p / "unit-test-report.md").write_text(unit_report(cases))
+    (dst_p / "system-validation-report.md").write_text(validation_report(cases, perf_note))
+    (dst_p / "code-coverage-report.md").write_text(coverage_report(cov, "line"))
+    (dst_p / "branch-coverage-report.md").write_text(coverage_report(cov, "branch"))
     print("Reports written to", dst_p)
 
 
