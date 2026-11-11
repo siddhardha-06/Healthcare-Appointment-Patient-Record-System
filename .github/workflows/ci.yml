@@ -32,9 +32,7 @@ jobs:
 
       - name: Generate the four test reports (unit, system validation, code coverage, branch coverage)
         if: always()
-        run: |
-          cp docs/reports/perf-summary.md reports/ 2>/dev/null || true
-          python scripts/generate_reports.py reports reports/generated
+        run: python scripts/generate_reports.py reports reports/generated
 
       - name: Upload test and coverage results
         if: always()
