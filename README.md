@@ -38,6 +38,50 @@ Manage patients, doctors, appointments, medical histories and prescriptions secu
 
 Appointment conflicts are prevented inside one database transaction (row lock on the slot, overlap check for the patient) and by a partial unique index on active appointments per slot.
 
+## Run it
+
+```
+python -m venv .venv
+.venv\Scripts\activate            # Windows  (macOS/Linux: source .venv/bin/activate)
+pip install -r requirements.txt
+python scripts/seed_demo.py --reset   # demo accounts, password Demo@1234 (admin: admin@hap.local / Admin@1234)
+uvicorn app.main:create_app --factory --reload
+```
+
+Open http://localhost:8000 for the web app and http://localhost:8000/docs for the API (Swagger).
+
+Settings (environment variables): `DATABASE_URL` (default SQLite `./hap.db`; PostgreSQL in production),
+`JWT_SECRET`, `HAP_DATA_KEY` (base64 32-byte AES key), `SMTP_HOST`/`SMTP_PORT`, `ENABLE_SCHEDULER=1`,
+`FORCE_HTTPS=1`, `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
+
+## Tests and reports
+
+```
+pytest --cov=app --cov=src --cov-branch --cov-report=json:reports/coverage.json --junitxml=reports/junit.xml
+python scripts/generate_reports.py reports docs/reports
+```
+
+Every pull request runs the tests (coverage must stay ≥ 70 %) and the docs check in GitHub Actions; every merge to `main`
+also builds the SRS, SAD and Test Plan documents. Performance (TC-PERF-01): `tests/perf/` (seed, quick load test, Locust file).
+
+## Backlog and sprints
+
+- Backlog: `docs/backlog/backlog.md` (created on GitHub with `python scripts/create_backlog.py`)
+- Sprint reports, deviations and video scripts: `docs/sprints/`
+- Test reports: `docs/reports/`
+
+## Code layout
+
+```
+app/
+  core/            config, database, errors, security (JWT, bcrypt, roles), events, scheduler, crypto
+  services/<name>/ one package per component (auth, patients, doctors, appointments, records, audit,
+                   notifications, jobs, security); each has plugin.py and is discovered automatically
+frontend/          React UI (no build step): app.js shell + one file per page in pages/
+tests/             pytest suites (one per service), tests/perf for load testing
+scripts/           backlog, demo data, reports, docs check and docs build
+```
+
 ## Repository layout
 
 ```
